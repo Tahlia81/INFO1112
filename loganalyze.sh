@@ -11,6 +11,8 @@ if [ ! -d "$LOG_DIR" ]; then
     exit 1
 fi
 
+echo "$LOG_DIR"
+
 > analysisData.log
 > summary.log
 
@@ -18,10 +20,8 @@ total_errors=0
 max_errors=0
 max_file=" "
 
-find "$LOG_DIR" -type f -name "*.log" -mtime -7 -print0 |
-while IFS= read -r -d " " logfile
+while IFS= read -r -d '' logfile
 do
-
     errors=$(grep -i -c "error" "$logfile")
     filename=$(basename "$logfile")
 
@@ -34,11 +34,10 @@ do
         max_errors=$errors
         max_file="$filename"
     fi
-done
+done < <(find "$LOG_DIR" -type f -name "*.log" -mtime -7 -print0)
 
 echo "Total errors: $total_errors"
 echo "File with the most errors: $max_file ($max_errors errors)"
 
-echo "Total errors: $total_errors"
+echo "Total errors: $total_errors" >> summary.log
 echo "File with the most errors: $max_file ($max_errors errors)" >> summary.log
-
